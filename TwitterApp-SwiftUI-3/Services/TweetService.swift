@@ -57,6 +57,10 @@ struct TweetService {
         }
     }
     
+}
+
+//MARK: - Likes
+extension TweetService {
     
     func likeTweet(_ tweet: Tweet, completion: @escaping()-> Void) {
         print("DEBUG: Like tweet here..")
@@ -93,7 +97,7 @@ struct TweetService {
                         completion()
                     }
                 }
-            }  
+            }
         
     }
     
@@ -112,5 +116,31 @@ struct TweetService {
 
     }
     
+
+    func fetchLikedTweets(forUid uid: String, completion: @escaping([Tweet])-> Void) {
+        
+        var tweets = [Tweet]()
+        print("DEBUG: Fetch liked tweets here..")
+        
+        Firestore.firestore().collection("users")
+            .document(uid)
+            .collection("user-likes")
+            .getDocuments { snapshot, _ in
+                guard let docs = snapshot?.documents else {return}
+
+                docs.forEach { doc in
+                    let tweetID = doc.documentID
+                    
+                    Firestore.firestore().collection("tweets")
+                        .document(tweetID)
+                        .getDocument { snapshot, _ in
+                            guard let tweet = try? snapshot?.data(as: Tweet.self) else { return }
+                            tweets.append(tweet)
+                            completion(tweets)
+                        }
+                }
+            }
+
+    }
     
 }
