@@ -1,0 +1,5 @@
+# Pods
+Pods/
+# System Files
+.DS_Store
+Thumbs.db
